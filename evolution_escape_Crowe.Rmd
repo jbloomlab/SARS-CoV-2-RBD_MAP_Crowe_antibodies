@@ -1,0 +1,468 @@
+---
+title: "Evolution and escape for Crowe mAbs + rCR3022"
+date: "8/14/2020"
+output:
+  github_document:
+    toc: true
+    html_preview: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+This notebook analyzes mAb escape scores for SARS-CoV-2 mAbs in light of evolutionary and functional considerations. This includes comparison to evolutionary conservation of positions among sarbecoviruses, consideration of circulating variants in current pandemic isolates, and relating escape scores to consideration of functional constraint from our deep mutational scanning measurements.
+
+## Setup
+
+```{r setup, message=FALSE, warning=FALSE, error=FALSE}
+#list of packages to install/load
+packages = c("yaml","data.table","tidyverse","gridExtra","bio3d","knitr","seqinr")
+#install any packages not already installed
+installed_packages <- packages %in% rownames(installed.packages())
+if(any(installed_packages == F)){
+  install.packages(packages[!installed_packages])
+}
+#load packages
+lapply(packages, library, character.only=T)
+
+knitr::opts_chunk$set(echo = T)
+knitr::opts_chunk$set(dev.args = list(png = list(type = "cairo")))
+
+#read in config file
+config <- read_yaml("config.yaml")
+
+#read in file giving concordance between RBD numbering and SARS-CoV-2 Spike numbering, along with other per-site annotations
+RBD_sites <- read.csv(config$RBD_sites,stringsAsFactors = F)
+
+#make output directory
+output_dir <- config$crowe_evolution_dir
+if(!file.exists(output_dir)){
+  dir.create(file.path(output_dir))
+}
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+Session info for reproducing environment:
+```{r print_sessionInfo}
+sessionInfo()
+```
+
+Load in relevant data for analyses: escape scores for the Crowe mAbs, deep mutational scanning scores, and sites of significant escape for these antibodies.
+
+```{r data_input}
+dms <- read.csv(file=config$mut_bind_expr,stringsAsFactors = F)
+dt <- data.table(read.csv(file=config$escape_fracs,stringsAsFactors=F))
+#filter to just the mAbs in this main paper, and just the average escape frac from the two libraries
+dt <- dt[selection %in% c("COV2-2050_400","COV2-2082_400","COV2-2094_400","COV2-2096_400","COV2-2165_400","COV2-2479_400",
+                          "COV2-2499_400","COV2-2677_400","COV2-2832_400","CR3022_400"),];dt <- dt[library=="average",]
+
+#add dms bind and expression phenotype for each mutation
+dt[,dms_bind := dms[dms$site_SARS2 == label_site & dms$mutant == mutation,"bind_avg"],by=c("label_site","mutation")]
+dt[,dms_expr := dms[dms$site_SARS2 == label_site & dms$mutant == mutation,"expr_avg"],by=c("label_site","mutation")]
+
+#read in table of sites of strong escape, filter the table for just the sites for these antibodies
+strong_sites <- read.csv(file=config$significant_escape_sites,stringsAsFactors=F)
+strong_sites <- strong_sites[strong_sites$condition %in% c("COV2-2050_400","COV2-2082_400","COV2-2094_400","COV2-2096_400","COV2-2165_400",
+                                                           "COV2-2479_400","COV2-2499_400","COV2-2677_400","COV2-2832_400","CR3022_400"),]
+
+#read in table giving escape fraction for sarbecovirus homologs in the libraries, filter the table for just these antibodies
+homologs <- read.csv(file=config$escape_fracs_homologs,stringsAsFactors=F); homologs <- homologs[homologs$library == "average",]
+homologs <- homologs[homologs$selection %in% c("COV2-2050_400","COV2-2082_400","COV2-2094_400","COV2-2096_400","COV2-2165_400",
+                                               "COV2-2479_400","COV2-2499_400","COV2-2677_400","COV2-2832_400","CR3022_400"),]
+
+#rename without the _400 for simpler names
+for(i in 1:nrow(strong_sites)){
+  strong_sites$condition[i] <- strsplit(strong_sites$condition[i],split="_")[[1]][1]
+}
+for(i in 1:nrow(dt)){
+  dt$selection[i] <- strsplit(dt$selection[i],split="_")[[1]][1]
+}
+for(i in 1:nrow(homologs)){
+  homologs$selection[i] <- strsplit(homologs$selection[i],split="_")[[1]][1]
+}
+
+#rename CR3022 to rCR3022
+strong_sites[strong_sites$condition=="CR3022","condition"] <- "rCR3022"
+homologs[homologs$selection=="CR3022","selection"] <- "rCR3022"
+dt[selection=="CR3022",selection:="rCR3022"]
+
+#in homologs, rename SARS-CoV to SARS-CoV-1
+homologs[homologs$homolog=="SARS-CoV","homolog"] <- "SARS-CoV-1"
+
+#set order for factors to auto-plot in desired order
+strong_sites$condition <- factor(strong_sites$condition, levels=c("rCR3022","COV2-2677","COV2-2082","COV2-2094","COV2-2165",
+                                                                  "COV2-2832","COV2-2479","COV2-2050","COV2-2096","COV2-2499"))
+dt$selection <- factor(dt$selection, levels=c("rCR3022","COV2-2677","COV2-2082","COV2-2094","COV2-2165",
+                                              "COV2-2832","COV2-2479","COV2-2050","COV2-2096","COV2-2499"))
+homologs$selection <- factor(homologs$selection, levels=c("rCR3022","COV2-2677","COV2-2082","COV2-2094","COV2-2165",
+                                                          "COV2-2832","COV2-2479","COV2-2050","COV2-2096","COV2-2499"))
+homologs$homolog <- factor(homologs$homolog, levels=c("SARS-CoV-2","GD-Pangolin","RaTG13","SARS-CoV-1","WIV16","LYRa11"))
+
+#read in list of escape mutations from prior papers selecting viral escape mutants in cell culture antibody treatment
+lit_escapes <- read.csv(file=config$literature_escapes,stringsAsFactors = F); lit_escapes <- lit_escapes[lit_escapes$study_short %in% c("Regeneron","NYC"),]
+for(i in 1:nrow(lit_escapes)){
+  lit_escapes$dms_bind[i] <- dms[dms$mutation == lit_escapes$mutation[i],"bind_avg"]
+  lit_escapes$dms_expr[i] <- dms[dms$mutation == lit_escapes$mutation[i],"expr_avg"]
+}
+
+#what's the 95th percentile in bind and expr escape scores among these lit mutants?
+bind_threshold <- as.numeric(quantile(lit_escapes$dms_bind,0.05))
+expr_threshold <- as.numeric(quantile(lit_escapes$dms_expr,0.05))
+
+#read in table of GISAID mut counts for all RBD sites
+circ_muts <- read.csv(file=config$circulating_variants,stringsAsFactors = F)
+
+```
+We define several indicator variables in the per-mutation `dt` that we will use at the per-mutation level for some slicing and dicing. We also add some summary stats about mutations in the `strong_sites` table. We do this all up here, so it's easier to change at the global level for all subsequent plots.
+
+```{r add-slicing-indicators}
+#add full character of the mutation name
+dt[,mutation_full := paste(wildtype,protein_site,mutation,sep="")]
+dt$mutation_full <- factor(dt$mutation_full,levels=unique(dt$mutation_full))
+
+#in the per-mut escape data table, we want an indicator of whether a mutation is at a site of strong escape
+for(i in 1:nrow(dt)){
+  if(nrow(strong_sites[strong_sites$condition == dt[i,selection] & strong_sites$site == dt[i,label_site],])==1){
+    dt$strong_site[i] <- T
+  }else{
+    dt$strong_site[i] <- F
+  }
+}
+
+#indicator for whether a mut is strong escape -- currently, just < or >5% escape
+for(i in 1:nrow(dt)){
+  if(dt$mut_escape_frac_epistasis_model[i]>0.05){
+    dt$strong_escape_indicator[i] <- T
+  }else{
+    dt$strong_escape_indicator[i] <- F
+  }
+}
+
+
+#define a function that takes a character of three nucleotides (a codon), and outputs all amino acids that can be accessed via single-nt mutation of that codon
+get.codon.muts <- function(codon){
+  nt <- c("a","c","g","t")
+  codon_split <- strsplit(codon,split="")[[1]]
+  codon_muts <- vector()
+  for(i in nt[nt!=codon_split[1]]){
+    codon_muts <- c(codon_muts,seqinr::translate(c(i,codon_split[2:3])))
+  }
+  for(i in nt[nt!=codon_split[2]]){
+    codon_muts <- c(codon_muts,seqinr::translate(c(codon_split[1],i,codon_split[3])))
+  }
+  for(i in nt[nt!=codon_split[3]]){
+    codon_muts <- c(codon_muts,seqinr::translate(c(codon_split[1:2],i)))
+  }
+  return(codon_muts)
+}
+
+#annotate mutations if they're single-nt accessible from the Wuhan-Hu-1 sequence
+dt[,SARS2_codon:=RBD_sites[RBD_sites$site_SARS2==protein_site,"codon_SARS2"],by=protein_site]
+dt[,singlemut := mutation %in% get.codon.muts(SARS2_codon),by=mutation_full]
+
+#add per-mut nobs from GISAID to dt table
+dt[,nobs := circ_muts[circ_muts$site_SARS2==label_site & circ_muts$mutant==mutation,"nobs"],by=c("label_site","mutation")]
+dt[,ngeo := circ_muts[circ_muts$site_SARS2==label_site & circ_muts$mutant==mutation,"ngeo"],by=c("label_site","mutation")]
+
+
+
+#site-wise annotations
+
+#add site sum, site max escape values to strong_sites table
+for(i in 1:nrow(strong_sites)){
+  strong_sites$sum_escape[i] <- dt[selection==strong_sites$condition[i] & label_site==strong_sites$site[i],site_total_escape_frac_epistasis_model][1]
+  strong_sites$max_escape[i] <- max(dt[selection==strong_sites$condition[i] & label_site==strong_sites$site[i], mut_escape_frac_single_mut])
+}
+
+#add mean bind and expr DMS measurements per site
+for(i in 1:nrow(strong_sites)){
+  strong_sites$mean_bind[i] <- mean(dms[dms$site_SARS2==strong_sites$site[i] & dms$mutant != dms$wildtype & dms$mutant != "*", "bind_avg"],na.rm=T)
+  strong_sites$mean_expr[i] <- mean(dms[dms$site_SARS2==strong_sites$site[i] & dms$mutant != dms$wildtype & dms$mutant != "*", "expr_avg"],na.rm=T)
+}
+
+#add Neff alignment conservation of each site of strong escape
+#read in an alignment of sarbecovirus RBDs
+alignment <- bio3d::read.fasta(file=config$sarbecovirus_alignment)
+#remove columns that is gap in the SARS-CoV-2 sequence (only one is a single A insertion in the BM48-31 sequence)
+alignment$ali <- alignment$ali[,which(alignment$ali[1,]!="-")]
+
+#calculate entropy, Neff at each site in the alignment
+entropy <- entropy(alignment)$H
+RBD_sites$entropy <- entropy
+RBD_sites$Neff <- 2^(entropy)
+
+#annotate strong sites table with the sarbecovirus alignment Neff
+for(i in 1:nrow(strong_sites)){
+  strong_sites$Neff[i] <- RBD_sites[RBD_sites$site_SARS2==strong_sites$site[i],"Neff"]
+}
+
+#for each site, sum the number of observed muts among GISAID sequences
+for(i in 1:nrow(strong_sites)){
+  strong_sites$n_gisaid_counts[i] <- sum(circ_muts[circ_muts$site_SARS2==strong_sites$site[i],"nobs"])
+  strong_sites$n_gisaid_muts[i] <- sum(circ_muts[circ_muts$site_SARS2==strong_sites$site[i],"nobs"]>0)
+}
+
+```
+
+## Sarbecovirus conservation at sites of escape
+
+First, let's visualize the average sarbecovirus homolog binding/escape score as table/heatmaps.
+
+```{r homolog_heatmap, fig.width=6,fig.height=4,fig.align="center", dpi=500,dev="png",echo=FALSE}
+p1 <- ggplot(homologs,aes(selection,homolog))+geom_tile(aes(fill=escape_frac),color="black",lwd=0.4)+
+  scale_fill_gradientn(colours=c("white","gray20"),limits=c(0,1),values=c(0,1),na.value="gray")+
+  scale_x_discrete(expand=c(0,0))+
+  scale_y_discrete(limits = rev(levels(homologs$homolog)))+
+  labs(y="homolog",x="antibody")+theme_classic(base_size=9)+
+  coord_equal()+theme(axis.text.x = element_text(angle=90,hjust=1))
+
+p1
+
+invisible(dev.print(pdf, paste(output_dir,"/homolog_binding_heatmap.pdf",sep="")))
+
+```
+
+Next, let's look at the conservation of amino acid residues that are strongly selected by each mAb. To look at this, we calculate `Neff` from the sarbecovirus RBD alignment given in `config$sarbecovirus_alignment`. We also compute a "restricted" sarbecovirus set `Neff_restricted`, which is computed from the SARS-CoV-1 and -2 clade sequences, the only ones known to bind ACE2 (and for which neutralizing breadth would be particularly important). This does create a quite small alignment, though, so it is unclear how well these `Neff_restricted` metrics reflect evolutionary constraint.
+
+```{r alignment_diversity, fig.width=4.5, fig.height=2.5, fig.align="center",dpi=300,dev="png",echo=T}
+
+#plot as a boxplot, for each position of strong escape for each antibody
+p1 <- ggplot(strong_sites,aes(x=condition,y=Neff))+
+        geom_boxplot(outlier.shape=NA, width=0.3, outlier.alpha=0.25)+
+        geom_jitter(width=0.1, height=0, alpha=0.25, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("N_eff per site of escape")+theme(axis.text.x=element_text(angle=90,hjust=1))
+
+grid.arrange(p1,nrow=1)
+
+invisible(dev.print(pdf, paste(output_dir,"/distribution-Neff_per_epitope.pdf",sep=""), useDingbats=F))
+
+```
+
+## DMS functional constraint at sites of escape
+
+What is the constraint per position (from our DMS measurements) for each antibody's set of escape sites? We can do two things here -- look at the average effect per site (general constraint), and look at the intrinsic constraint for particular escape mutations (specific constraint).
+
+The first plots below show the mean mutation effect per site on binding (left) and expression (right) for sites of significant escape from each mAb. We don't know exactly what the cutoff is for tolerability of real escape mutations with side-effects on binding or expression -- however, we can use previous sets of selected escape mutations in lab/cell culture antibody selections, to see what range of phenotypic values are observed in these "lab-selected" escape mutations, which Allie collated in a table `config$literature_escapes`. The dashed lines on these plots are the 95th percentile of binding and expression DMS scores for these lab-selected escape mutations (or is it 5th percentile? 95% of lab-escape mutants have binding/expression this value or higher).
+
+```{r dms_constraint_general, fig.width=7, fig.height=3, fig.align="center",dpi=300,dev="png",echo=T}
+
+p1 <- ggplot(strong_sites,aes(x=condition,y=mean_bind))+
+        geom_boxplot(outlier.shape=NA, width=0.3, outlier.alpha=0.5)+
+        geom_jitter(width=0.1, height=0, alpha=0.25, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("mean binding effect per site")+theme(axis.text.x=element_text(angle=90,hjust=1))
+
+p2 <- ggplot(strong_sites,aes(x=condition,y=mean_expr))+
+        geom_boxplot(outlier.shape=NA, width=0.3, outlier.alpha=0.5)+
+        geom_jitter(width=0.1, height=0, alpha=0.25, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("mean expression effect per site")+theme(axis.text.x=element_text(angle=90,hjust=1))
+
+grid.arrange(p1,p2,nrow=1)
+
+invisible(dev.print(pdf, paste(output_dir,"/distribution_mean-dms-score_per_epitope.pdf",sep=""), useDingbats=F))
+
+```
+
+Next, for each mAb, we make exploratory plots showing the effect of individual mutations at sites of significant escape on DMS binding or expression versus antibody escape.
+
+```{r dms_constraint_specific, fig.width=5, fig.height=24, fig.align="center",dpi=300,dev="png",echo=T}
+
+par(mfrow=c(length(levels(dt$selection)),2))
+for(mAb in levels(dt$selection)){
+  plot(dt[selection==mAb & label_site %in% strong_sites[strong_sites$condition==mAb,"site"],mut_escape_frac_epistasis_model],
+     dt[selection==mAb & label_site %in% strong_sites[strong_sites$condition==mAb,"site"],dms_bind],
+     xlab="fraction escape",ylab="DMS binding score",main=mAb,pch=16,
+     xlim=range(dt$mut_escape_frac_epistasis_model),ylim=range(dt[label_site %in% strong_sites$site,dms_bind])); abline(h=bind_threshold,lty=2,col="gray50")
+  plot(dt[selection==mAb & label_site %in% strong_sites[strong_sites$condition==mAb,"site"],mut_escape_frac_epistasis_model],
+       dt[selection==mAb & label_site %in% strong_sites[strong_sites$condition==mAb,"site"],dms_expr],
+       xlab="fraction escape",ylab="DMS expression score",main=mAb,pch=16,
+       xlim=range(dt$mut_escape_frac_epistasis_model),ylim=range(dt[label_site %in% strong_sites$site,dms_expr])); abline(h=expr_threshold,lty=2,col="gray50")
+}
+
+invisible(dev.print(pdf, paste(output_dir,"/plots_dms-score_per_mut.pdf",sep=""), useDingbats=F))
+```
+
+Let's look at DMS constraint at the per-mut level, differentiating mutations that confer strong ecape from those that do not.
+
+```{r dms_constraint_per-mut_color-escape_boxplot, fig.width=6, fig.height=6, fig.align="center",dpi=300,dev="png",echo=T}
+
+p1 <- ggplot(dt[strong_site==T,],aes(x=selection,y=dms_bind))+
+        geom_boxplot(outlier.shape=NA, width=0.5,aes(fill=strong_escape_indicator))+
+        scale_fill_manual(values=cbPalette[c(5,6)])+
+        theme_classic()+
+        xlab("antibody")+ylab("dms binding effect of mut")+theme(axis.text.x=element_text(angle=90,hjust=1))+
+        geom_hline(yintercept=bind_threshold, linetype=2, color="gray50")
+
+p2 <- ggplot(dt[strong_site==T,],aes(x=selection,y=dms_expr,fill=strong_escape_indicator))+
+        geom_boxplot(outlier.shape=NA, width=0.5)+
+        scale_fill_manual(values=cbPalette[c(5,6)])+
+        #geom_jitter(width=0.1, height=0, alpha=0.5, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("dms expression effect of mut")+theme(axis.text.x=element_text(angle=90,hjust=1))+
+        geom_hline(yintercept=bind_threshold, linetype=2, color="gray50")
+
+grid.arrange(p1,p2,nrow=2)
+
+invisible(dev.print(pdf, paste(output_dir,"/boxplots_dms-score_per_mut_split-by-escape.pdf",sep=""), useDingbats=F))
+
+```
+
+
+## Circulating mutants at sites of escape
+
+Finally, let's look at the number of ciruclating amino-acid variants within sites of escape from mAb. We can look at general prevalence of mutations within these sites, as well as the prevalence of specific escape mutations (that is, factoring in that we don't always see that all mutations at a significant site confer escape).
+
+First looking more generally, on the top is the number GISAID sequecnes that have an amino-acid mutation at a site of escape for each antibody. On the bottom is the total number of mutant amino acids that are observed at each site of escape for each mAb.
+
+```{r circulating_muts_general, fig.width=4, fig.height=3, fig.align="center",dpi=300,dev="png",echo=T}
+
+p1 <- ggplot(strong_sites,aes(x=condition,y=n_gisaid_counts))+
+        #geom_boxplot(outlier.shape=NA, width=0.3, outlier.alpha=0.25)+
+        geom_jitter(width=0.1, height=0, alpha=0.25, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("number GISAID seqs with mut at epitope site")+theme(axis.text.x=element_text(angle=90,hjust=1))
+
+p2 <- ggplot(strong_sites,aes(x=condition,y=n_gisaid_muts))+
+        geom_boxplot(outlier.shape=NA, width=0.3, outlier.alpha=0.25)+
+        geom_jitter(width=0.1, height=0, alpha=0.25, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("number of observed amino acids at epitope site")+theme(axis.text.x=element_text(angle=90,hjust=1))
+
+grid.arrange(p1,p2, nrow=1)
+
+invisible(dev.print(pdf, paste(output_dir,"/general-circ-mut-frequences_per_mAb.pdf",sep=""), useDingbats=F))
+        
+```
+
+To consider more specifically the actual escape mutations, let's look at GISAID count versus fraction escape at the per-mut level.
+
+```{r circulating_muts_specific_scatter, fig.width=12,fig.height=3, fig.align="center",dpi=300,dev="png",echo=T}
+p1 <- ggplot(dt[strong_site==T,],aes(x=mut_escape_frac_epistasis_model,y=nobs))+
+        geom_point(alpha=0.25, shape=16)+
+        theme_classic()+
+        xlab("escape fraction")+ylab("number GISAID seqs with mut")+theme(axis.text.x=element_text(angle=90,hjust=1))
+p1 + facet_grid(. ~ selection)
+invisible(dev.print(pdf, paste(output_dir,"/specific-circ-mut-frequences_per_mAb_scatter.pdf",sep=""), useDingbats=F))
+```
+
+
+Finally, let's just look in tabular form at mutants that have escape fractions of >5% and are found among circulating variants.
+
+```{r tabular_circulating_escape_muts}
+kable(dt[strong_site==T & nobs>0 & mut_escape_frac_epistasis_model > 0.05,][order(selection),.(selection, paste(wildtype,protein_site,mutation,sep=""), round(mut_escape_frac_epistasis_model,digits=2),nobs,ngeo,dms_bind,dms_expr)],col.names=c("antibody","mutation","escape fraction", "number GISAID sequences","number locations", "dms bind", "dms expr"))
+```
+
+Look at all circulating muts at sites of strong escape, regardless of actual escape score. Sort by site rather than group by antibody
+
+```{r tabular_circulating_escape_muts_all}
+kable(dt[strong_site==T & nobs>0,][order(label_site,mutation,selection),.(paste(wildtype,protein_site,sep=""), mutation, nobs, selection, round(mut_escape_frac_epistasis_model,digits=2),dms_bind,dms_expr)],col.names=c("residue","mutation","# GISAID sequences", "antibody","escape fraction", "dms bind", "dms expr"))
+```
+Make a heatmap showing the escape fraction of each antibody for each circulating mutation at sites of significant escape. For sites that aren't significant escape from an antibody, color white.
+
+```{r heatmap_circ_muts_by_site_all,fig.width=6,fig.height=12,fig.align="center", dpi=500,dev="png",echo=FALSE}
+
+dt_circ_sig <- dt[strong_site==T & nobs>0,][order(label_site,mutation,selection),.(selection, wildtype, mutation, mutation_full, protein_site, mut_escape_frac_epistasis_model, strong_site, nobs, ngeo)]
+
+dt_circ_sig$mutation_full <- factor(dt_circ_sig$mutation_full,levels=unique(dt_circ_sig$mutation_full))
+
+dt_circ_sig_full <- dt[mutation_full %in% dt_circ_sig$mutation_full,.(selection, wildtype, mutation, protein_site, mutation_full, mut_escape_frac_epistasis_model, strong_site, nobs, ngeo)]
+dt_circ_sig_full$mutation_full <- factor(dt_circ_sig_full$mutation_full,levels=unique(dt_circ_sig_full$mutation_full))
+
+#set to NA any escape frac for non-significant sites
+dt_circ_sig_full[strong_site==FALSE, mut_escape_frac_epistasis_model := NA]
+
+#for the plot, want to just have >=0.1 escape frac as same color
+dt_circ_sig_full[mut_escape_frac_epistasis_model>0.1,mut_escape_frac_epistasis_model:=0.1]
+
+p1 <- ggplot(dt_circ_sig_full,aes(selection,mutation_full))+
+  geom_tile(aes(fill=mut_escape_frac_epistasis_model),color="black",lwd=0.4)+
+  scale_fill_gradientn(colours=c("gray70","gray20"),limits=c(0,.1),values=c(0,1),breaks=c(0,0.1),labels=c("0",">=0.1"),na.value="white")+
+  scale_x_discrete(expand=c(0,0))+
+  scale_y_discrete(limits = rev(levels(dt_circ_sig_full$mutation_full)))+
+  labs(y="circulating mutation",x="antibody")+theme_classic(base_size=9)+
+  coord_equal()+theme(axis.text.x = element_text(angle=90,hjust=1))
+
+p1
+
+invisible(dev.print(pdf, paste(output_dir,"/heatmap_circ-mut_v_antibody_frac-escape_all.pdf",sep=""), useDingbats=F))
+```
+For main text, filter for "interesting" variants/sites/muts
+
+```{r heatmap_circ_muts_by_site_filtered,fig.width=6,fig.height=6,fig.align="center", dpi=500,dev="png",echo=FALSE}
+
+dt_circ_sig <- dt[strong_site==T & nobs>0,][order(label_site,mutation,selection),.(selection, wildtype, mutation, protein_site, mut_escape_frac_epistasis_model, strong_site, nobs, ngeo)]
+
+dt_circ_sig[,mutation_full := paste(wildtype,protein_site,mutation,sep="")]
+dt_circ_sig$mutation_full <- factor(dt_circ_sig$mutation_full,levels=unique(dt_circ_sig$mutation_full))
+
+dt[,mutation_full := paste(wildtype,protein_site,mutation,sep="")]
+dt$mutation_full <- factor(dt$mutation_full,levels=unique(dt$mutation_full))
+
+dt_circ_sig_full <- dt[mutation_full %in% dt_circ_sig$mutation_full,.(selection, wildtype, mutation, protein_site, mutation_full, mut_escape_frac_epistasis_model, strong_site, nobs, ngeo)]
+dt_circ_sig_full$mutation_full <- factor(dt_circ_sig_full$mutation_full,levels=unique(dt_circ_sig_full$mutation_full))
+
+#set to NA any escape frac for non-significant sites
+dt_circ_sig_full[strong_site==FALSE, mut_escape_frac_epistasis_model := NA]
+
+#filter out mutations where no antibody has at least 5% escape
+for(i in unique(dt_circ_sig_full$mutation_full)){
+  if(max(dt_circ_sig_full[mutation_full==i,mut_escape_frac_epistasis_model],na.rm=T) < 0.05){
+    dt_circ_sig_full <- dt_circ_sig_full[mutation_full != i,]
+  }
+}
+dt_circ_sig_full$mutation_full <- factor(dt_circ_sig_full$mutation_full,levels=unique(dt_circ_sig_full$mutation_full))
+
+#filter out mutations with only a single gisaid count
+for(i in unique(dt_circ_sig_full$mutation_full)){
+  if(dt_circ_sig_full[mutation_full==i,nobs][1] == 1){
+    dt_circ_sig_full <- dt_circ_sig_full[mutation_full != i,]
+  }
+}
+dt_circ_sig_full$mutation_full <- factor(dt_circ_sig_full$mutation_full,levels=unique(dt_circ_sig_full$mutation_full))
+
+#for the plot, want to just have >=0.1 escape frac
+dt_circ_sig_full[mut_escape_frac_epistasis_model>0.1,mut_escape_frac_epistasis_model:=0.1]
+
+p1 <- ggplot(dt_circ_sig_full,aes(selection,mutation_full))+
+  geom_tile(aes(fill=mut_escape_frac_epistasis_model),color="black",lwd=0.4)+
+  scale_fill_gradientn(colours=c("gray70","gray20"),limits=c(0,.1),values=c(0,1),breaks=c(0,0.1),labels=c("0",">=0.1"),na.value="white")+
+  scale_x_discrete(expand=c(0,0))+
+  scale_y_discrete(limits = rev(levels(dt_circ_sig_full$mutation_full)))+
+  labs(y="circulating mutation",x="antibody")+theme_classic(base_size=9)+
+  coord_equal()+theme(axis.text.x = element_text(angle=90,hjust=1))
+
+p1
+
+invisible(dev.print(pdf, paste(output_dir,"/heatmap_circ-mut_v_antibody_frac-escape.pdf",sep=""), useDingbats=F))
+```
+
+Let's look a bit more specifically at escape mutations that are single-nt-mutation accessible from the reference SARS-CoV-2 sequence.
+
+```{r single_codon_muts, fig.width=7, fig.height=6, fig.align="center",dpi=300,dev="png",echo=T}
+
+p1 <- ggplot(dt[strong_site==T,],aes(x=selection,y=dms_bind,fill=singlemut))+
+        geom_boxplot(outlier.shape=16, width=0.5, outlier.alpha=0.5,notch=T)+
+        scale_fill_manual(values=cbPalette[c(5,6)])+
+        #geom_jitter(width=0.1, height=0, alpha=0.5, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("dms binding effect of mut")+theme(axis.text.x=element_text(angle=90,hjust=1))+
+        geom_hline(yintercept=bind_threshold, linetype=2, color="gray50")
+
+p2 <- ggplot(dt[strong_site==T,],aes(x=selection,y=dms_expr,fill=singlemut))+
+        geom_boxplot(outlier.shape=16, width=0.5, outlier.alpha=0.5,notch=T)+
+        scale_fill_manual(values=cbPalette[c(5,6)])+
+        #geom_jitter(width=0.1, height=0, alpha=0.5, shape=16)+
+        theme_classic()+
+        xlab("antibody")+ylab("dms expression effect of mut")+theme(axis.text.x=element_text(angle=90,hjust=1))+
+        geom_hline(yintercept=bind_threshold, linetype=2, color="gray50")
+
+grid.arrange(p1,p2,nrow=2)
+
+invisible(dev.print(pdf, paste(output_dir,"/boxplots_dms-score_per_mut_split-by-singlemut.pdf",sep=""), useDingbats=F))
+
+```
+
+
+
+

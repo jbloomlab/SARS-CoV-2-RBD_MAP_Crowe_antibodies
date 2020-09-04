@@ -1,0 +1,117 @@
+# config for analysis
+
+# most CPUs to ever use at once for a job
+max_cpus: 16
+
+# list of Illumina sequencing runs of barcodes
+barcode_runs: data/barcode_runs.csv
+
+# wildtype sequence of mutagenized gene
+wildtype_sequence: data/wildtype_sequence.fasta
+
+# URL from which we download codon-variant table
+codon_variant_table_url: https://media.githubusercontent.com/media/jbloomlab/SARS-CoV-2-RBD_DMS/master/results/variants/codon_variant_table.csv
+
+# URLs from which we download binding & expression of mutants & variants
+mut_bind_expr_url: https://media.githubusercontent.com/media/jbloomlab/SARS-CoV-2-RBD_DMS/master/results/single_mut_effects/single_mut_effects.csv
+variant_expr_url: https://media.githubusercontent.com/media/jbloomlab/SARS-CoV-2-RBD_DMS/master/results/expression_meanFs/expression_meanFs.csv
+variant_bind_url: https://media.githubusercontent.com/media/jbloomlab/SARS-CoV-2-RBD_DMS/master/results/binding_Kds/binding_Kds.csv
+
+# Parameters for processing Illumina barcodes, assuming this structure:
+#  [R2 binds] - [upstream] - [barcode] - [downstream] - [R1 binds]
+#  This orientation is hard-wired in the barcode parser, but here it is opposite
+#  Therefore, supplied the "downstream" sequence as reverse complemented upstream
+# Passed to `dms_variants.illuminabarcodeparser.IlluminaBarcodeParser`:
+illumina_barcode_parser_params:
+  bclen: 16
+  upstream: GCTCGCGGCCGC
+  downstream: ''
+  minq: 20
+  upstream_mismatch: 1
+  downstream_mismatch: 0
+
+# Parameters used when computed escape scores:
+escape_score_type: frac_escape  # type of escape score, see dms_variants
+escape_score_pseudocount: 0.5  # added to observed counts
+escape_score_floor_E: 0  # floor on escape fractions
+escape_score_ceil_E: 1  # ceiling on escape fractions
+# Group variants by this when calculating escape scores; sensible values are
+# "barcode" (to calculate a score for each barcoded variant) or
+# "aa_substitutions" (to group all variants with same amino-acid substitutions):
+escape_score_group_by: barcode
+# How to group variants for homologs:
+escape_score_homolog_group_by: aa_substitutions
+# Filter variants (after grouping according to `escape_group_by`) with
+# pre-selection counts < this quantile of stop codon variants, thereby
+# removing low count "noise":
+escape_score_stop_quantile_filter: 0.99
+# Filter variants with ACE2-binding scores < this threshold, which is
+# determined from the deep mutational scan (Starr et al, 2020):
+escape_score_min_bind: -2.35
+# Filter variants with expression < this threshold, which separates the
+# two modes of expression in the deep mutational scan (Starr et al, 2020):
+escape_score_min_expr: -1.5
+# **Prior to fitting global epistasis models**, remove variants that have
+# substitutions that are not observed in at least this many variants in a
+# single-mutant **and** any context:
+global_epistasis_filter_by_subs_observed_single: 0
+global_epistasis_filter_by_subs_observed_any: 2
+# Only retain mutation-level escape fraction estimates when there are
+# **either** >= the indicated number of filtered variants (after grouping
+# according to `escape_group_by`) with the mutation as a single mutant
+# or in any context:
+escape_frac_min_single_mut_measurements: 1
+escape_frac_min_any_mut_measurements: 2
+
+# Parameters in escape frac output file that enable dms-view
+# visualization on PDB 6m0j:
+escape_frac_protein_chain: E  # use this chain
+escape_frac_protein_site_offset: 330  # add this to sequential sites
+
+# Site- and mutation-level metrics for escape profiles
+site_metric: site_total_escape_frac_epistasis_model
+mut_metric: mut_escape_frac_epistasis_model
+# Specify how to plot escape profiles
+escape_profiles_config: data/escape_profiles_config.yaml
+# Site color schemes for escape profiles
+site_color_schemes: data/site_color_schemes.csv
+
+# Keep only homologs that bind ACE2 reasonably well and so survived pre-sort:
+homologs_to_keep:
+  - SARS-CoV-2
+  - SARS-CoV
+  - GD-Pangolin
+  - LYRa11
+  - RaTG13
+  - WIV16
+
+# Input files for analyses from the data subdirectory
+RBD_sites: data/RBD_sites.csv
+GISAID_alignment: data/GISAID/spike_GISAID_aligned.fasta
+pdb: data/pdbs/6M0J.pdb # file to use for outputting pdbs with b-factor as escape scores
+sarbecovirus_alignment: data/RBDs_aligned.fasta
+literature_escapes: data/literature_escapes.csv
+
+# output directories / files
+summary_dir: results/summary
+codon_variant_table: results/prior_DMS_data/codon_variant_table.csv
+mut_bind_expr: results/prior_DMS_data/mutant_ACE2binding_expression.csv
+variant_expr: results/prior_DMS_data/variant_expression.csv
+variant_bind: results/prior_DMS_data/variant_ACE2binding.csv
+counts_dir: results/counts
+variant_counts: results/counts/variant_counts.csv
+escape_scores_dir: results/escape_scores
+escape_score_samples: results/escape_scores/samples.csv
+escape_scores: results/escape_scores/scores.csv
+escape_scores_homologs: results/escape_scores/scores_homologs.csv
+escape_fracs: results/escape_scores/escape_fracs.csv
+escape_fracs_homologs: results/escape_scores/escape_fracs_homologs.csv
+escape_profiles_dir: results/escape_profiles
+escape_profiles_dms_colors: results/escape_profiles/escape_profiles_dms_colors.csv
+significant_escape_sites: results/escape_profiles/significant_escape_sites.csv
+circulating_variants_dir: results/circulating_variants
+circulating_variants: results/circulating_variants/circulating_variants.csv
+pdb_outputs_dir: results/pdb_outputs
+ellebedy_evolution_dir: results/ellebedy_evolution
+crowe_evolution_dir: results/crowe_evolution
+supp_data_dir: results/supp_data

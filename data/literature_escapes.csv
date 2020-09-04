@@ -1,0 +1,62 @@
+mutation,site_SARS2,wildtype,mutant,study_short,notes,study
+N354D,354,N,D,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+V367F,367,V,F,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+Q409E,409,Q,E,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+Q414E,414,Q,E,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+A435S,435,A,S,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+N439K,439,N,K,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+G446V,446,G,V,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+L452R,452,L,R,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+K458N,458,K,N,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+I468F,468,I,F,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+I468T,468,I,T,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+I472V,472,I,V,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+I472V,472,I,V,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+A475V,475,A,V,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+T478I,478,T,I,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+V483A,483,V,A,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+V483I,483,V,I,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+F490L,490,F,L,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+Y508H,508,Y,H,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+Y508H,508,Y,H,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+H519P,519,H,P,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+A522V,522,A,V,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+A831V,831,A,V,Li_106_scan,naturally circulating variant reduced sensitivity to some antibody or serum,https://doi.org/10.1016/j.cell.2020.07.012
+K417E,417,K,E,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+K444Q,444,K,Q,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+V445A,445,V,A,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+N450D,450,N,D,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+Y453F,453,Y,F,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+L455F,455,L,F,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+E484K,484,E,K,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+G485D,485,G,D,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+F486V,486,F,V,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+F490P,490,F,P,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+Q493K,493,Q,K,Regeneron,in vitro selected escape from Regeneron antibody,DOI: 10.1126/science.abd0831
+K417,417,K,NA,IGHV3-53,key contact for common IGHV3-53 heavy chain,DOI: 10.1126/science.abd2321
+Y421,421,Y,NA,IGHV3-53,key contact for common IGHV3-53 heavy chain,DOI: 10.1126/science.abd2321
+L455,455,L,NA,IGHV3-53,key contact for common IGHV3-53 heavy chain,DOI: 10.1126/science.abd2321
+F456,456,F,NA,IGHV3-53,key contact for common IGHV3-53 heavy chain,DOI: 10.1126/science.abd2321
+A475,475,A,NA,IGHV3-53,key contact for common IGHV3-53 heavy chain,DOI: 10.1126/science.abd2321
+N487,487,N,NA,IGHV3-53,key contact for common IGHV3-53 heavy chain,DOI: 10.1126/science.abd2321
+N489,489,N,NA,IGHV3-53,key contact for common IGHV3-53 heavy chain,DOI: 10.1126/science.abd2321
+R346K,346,R,K,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+R346S,346,R,S,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+R346L,346,R,L,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+R346S,346,R,S,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+N439K,439,N,K,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+N440K,440,N,K,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+K444Q,444,K,Q,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+K444R,444,K,R,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+K444N,444,K,N,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+K444T,444,K,T,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+V445E,445,V,E,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+V445G,445,V,G,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+G446V,446,G,V,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+V445L,445,V,L,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+L455R,455,L,R,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+E484K,484,E,K,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+F490L,490,F,L,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+Q493K,493,Q,K,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+Q493L,493,Q,L,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759
+Q493R,493,Q,R,NYC,in vitro selected escape from NY study antibodies or sera,https://doi.org/10.1101/2020.07.21.214759

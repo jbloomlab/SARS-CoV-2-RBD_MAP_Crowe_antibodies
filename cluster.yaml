@@ -1,0 +1,32 @@
+# cluster configuration for running Snakefile on Hutch cluster
+
+__default__:
+  cpus: 1
+  time: 0-4
+  mem: 32000
+  name: "{rule}"
+
+count_variants:
+  cpus: 16
+  time: 0-8
+  mem: 100000
+
+scores_to_frac_escape:
+  cpus: 16
+  time: 0-4
+  mem: 100000
+
+output_pdbs:
+  cpus: 8
+  time: 0-4
+  mem: 50000
+
+circulating_variants:
+  cpus: 8
+  time: 0-4
+  mem: 50000
+
+crowe_evol:
+  cpus: 4
+  time: 0-4
+  mem: 25000
