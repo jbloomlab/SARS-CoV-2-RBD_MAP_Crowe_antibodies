@@ -91,6 +91,8 @@ GISAID_alignment: data/GISAID/spike_GISAID_aligned.fasta
 pdb: data/pdbs/6M0J.pdb # file to use for outputting pdbs with b-factor as escape scores
 sarbecovirus_alignment: data/RBDs_aligned.fasta
 literature_escapes: data/literature_escapes.csv
+escape_selection_results: data/escape_selection_results.yaml
+vsv_spike: data/VSV-SARS-CoV-2-Spike.gb
 
 # output directories / files
 summary_dir: results/summary
