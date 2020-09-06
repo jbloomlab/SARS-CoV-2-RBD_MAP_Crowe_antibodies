@@ -117,3 +117,4 @@ pdb_outputs_dir: results/pdb_outputs
 ellebedy_evolution_dir: results/ellebedy_evolution
 crowe_evolution_dir: results/crowe_evolution
 supp_data_dir: results/supp_data
+escape_selections_dir: results/escape_selections

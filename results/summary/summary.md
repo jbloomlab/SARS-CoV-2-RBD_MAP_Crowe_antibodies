@@ -34,3 +34,5 @@ Here is the Markdown output of each notebook in the workflow:
 
 10. [Make supplementary data files](make_supp_data.md),
     which are [here](../supp_data).
+
+11. [Analyze VSV escape selections](escape_selections.md).
