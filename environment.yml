@@ -261,7 +261,7 @@ dependencies:
     - biopython==1.77
     - cycler==0.10.0
     - descartes==1.1.0
-    - dms-variants==0.8.2
+    - dms-variants==0.8.4
     - dmslogo==0.3.2
     - kiwisolver==1.2.0
     - logomaker==0.8

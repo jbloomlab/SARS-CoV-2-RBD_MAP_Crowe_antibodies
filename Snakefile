@@ -60,6 +60,7 @@ rule make_summary:
         circulating_variants='results/summary/circulating_variants.md',
         crowe_evol='results/summary/evolution_escape_Crowe.md',
         make_supp_data=nb_markdown('make_supp_data.ipynb'),
+        escape_selections=nb_markdown('escape_selections.ipynb'),
     output:
         summary = os.path.join(config['summary_dir'], 'summary.md')
     run:
@@ -105,6 +106,8 @@ rule make_summary:
             10. [Make supplementary data files]({path(input.make_supp_data)}),
                 which are [here]({path(config['supp_data_dir'])}).
 
+            11. [Analyze VSV escape selections]({path(input.escape_selections)}).
+
             """
             ).strip())
 
@@ -116,6 +119,20 @@ rule make_dag:
         os.path.join(config['summary_dir'], 'dag.svg')
     shell:
         "snakemake --forceall --dag | dot -Tsvg > {output}"
+
+rule escape_selections:
+    input:
+        config['escape_selection_results'],
+        config['escape_fracs'],
+        config['mut_bind_expr'],
+        config['vsv_spike'],
+    output:
+        nb_markdown=nb_markdown('escape_selections.ipynb'),
+        outdir=directory(config['escape_selections_dir']),
+    params:
+        nb='escape_selections.ipynb'
+    shell:
+        "python scripts/run_nb.py {params.nb} {output.nb_markdown}"
 
 rule make_supp_data:
     input:
