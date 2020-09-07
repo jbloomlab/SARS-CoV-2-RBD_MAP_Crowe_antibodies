@@ -45,7 +45,7 @@ Make output directory:
 
 
 ```python
-os.makedirs(config['escape_selections_dir'])
+os.makedirs(config['escape_selections_dir'], exist_ok=True)
 ```
 
 Read escape-mutation mapping and deep mutational scanning results, and then merge them:
@@ -179,10 +179,17 @@ for antibody, d in selection_results.items():
             site = int(mutation_str[1: -1])
             mutation = mutation_str[-1]
             records.append((antibody, site, wt, mutation, n))
+            assert 1 == len(escape_dms.query('antibody == @antibody')
+                                      .query('wildtype == @wt')
+                                      .query('site == @site')
+                                      .query('mutation == @mutation')
+                                      ), f"{mutation_str} not in `escape_dms` once for {antibody}"
             
 selection_df = pd.DataFrame.from_records(
                 records,
                 columns=['antibody', 'site', 'wildtype', 'mutation', 'n_selected'])
+
+antibody_order = selection_df['antibody'].unique().tolist()
 
 display(HTML(selection_df.to_html(index=False)))
 ```
@@ -199,20 +206,6 @@ display(HTML(selection_df.to_html(index=False)))
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>COV2-2499</td>
-      <td>446</td>
-      <td>G</td>
-      <td>D</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td>COV2-2499</td>
-      <td>498</td>
-      <td>Q</td>
-      <td>R</td>
-      <td>2</td>
-    </tr>
     <tr>
       <td>COV2-2094</td>
       <td>378</td>
@@ -239,6 +232,20 @@ display(HTML(selection_df.to_html(index=False)))
       <td>484</td>
       <td>E</td>
       <td>K</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>COV2-2499</td>
+      <td>446</td>
+      <td>G</td>
+      <td>D</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>COV2-2499</td>
+      <td>498</td>
+      <td>Q</td>
+      <td>R</td>
       <td>2</td>
     </tr>
   </tbody>
@@ -384,10 +391,8 @@ if any(escape_dms_selection['wildtype'] != escape_dms_selection['VSV_aa']):
     Reading Spike codon sequence from data/VSV-SARS-CoV-2-Spike.gb
 
 
-Make plots showing effects of all mutations and single-nucleotide mutations only, with red circles indicating the actual selected mutations and circle area proportional to number of times mutation was selected.
-Mutations not selected are shown as gray circles proportional in size to mutations selected once.
-
-Make the plot **both** for all amino-acid mutations and just ones that are single-nucleotide accessible from the VSV Spike:
+Make plots showing effects of all mutations stratified by how many times observed in selections, and whether single-nucleotide accessible or not from VSV spike.
+For mutations observed in selections point size is proportional to times observed:
 
 
 ```python
@@ -403,6 +408,7 @@ cat_labels = {0: 'multi-nucleotide',
               2: 'selected (area proportional to observations)',
               }
 df = escape_dms_selection.assign(
+        antibody=lambda x: pd.Categorical(x['antibody'], antibody_order, ordered=True),
         point_area=lambda x: numpy.clip(x['n_selected'], 0.5, None),
         # 0 for not single-nt accessible, 1 for single-nt accessible but not selected, 2 for selected and single-nt accessible
         point_category_int=lambda x: x['any_selected'].astype(int) + x['single_nt_accessible'],
@@ -416,7 +422,7 @@ p = (ggplot(df) +
          size='point_area', shape='point_category') +
      geom_point() +
      facet_wrap('~ antibody', nrow=1, scales='free_x') +
-     scale_color_manual(values=[CBPALETTE[0], CBPALETTE[5], CBPALETTE[6]]) +
+     scale_color_manual(values=[CBPALETTE[0], CBPALETTE[3], CBPALETTE[6]]) +
      scale_alpha_manual(values=[0.3, 0.4, 0.95]) +
      scale_size_area(max_size=2.5) +
      scale_shape_manual(values=['x', 'o', 'D']) +
