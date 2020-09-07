@@ -1,11 +1,5 @@
 # Results of escape mutant selections.
 
-COV2-2499:
-  replicates_total: 16
-  replicates_escape: 7
-  mutations:
-    G446D: 2
-    Q498R: 2
 
 COV2-2094:  # total of 8 mutants selected
   replicates_total: 24
@@ -13,6 +7,10 @@ COV2-2094:  # total of 8 mutants selected
   mutations:
     K378E: 1
     K378N: 1
+    
+COV2-2165:
+  replicates_total: 56
+  replicates_escape: 0
 
 COV2-2479:  # total of 3 mutants selected
   replicates_total: 56
@@ -26,6 +24,9 @@ COV2-2050:  # total of 5 mutants selected
   mutations:
     E484K: 2
 
-COV2-2165:
-  replicates_total: 56
-  replicates_escape: 0
+COV2-2499:
+  replicates_total: 16
+  replicates_escape: 7
+  mutations:
+    G446D: 2
+    Q498R: 2
