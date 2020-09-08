@@ -11,6 +11,8 @@ COV2-2094:  # total of 8 mutants selected
 COV2-2165:
   replicates_total: 56
   replicates_escape: 0
+  label_mutations:
+    - D420Y
 
 COV2-2479:  # total of 3 mutants selected
   replicates_total: 56
