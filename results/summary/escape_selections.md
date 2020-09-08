@@ -172,24 +172,24 @@ Get data frame with just escape-selection counts and then add to the main data f
 
 ```python
 records = []
+antibody_order = []
 for antibody, d in selection_results.items():
     if 'mutations' in d:
         for mutation_str, n in d['mutations'].items():
             wt = mutation_str[0]
             site = int(mutation_str[1: -1])
-            mutation = mutation_str[-1]
+            mutation = mutation_str[-1]    
             records.append((antibody, site, wt, mutation, n))
             assert 1 == len(escape_dms.query('antibody == @antibody')
                                       .query('wildtype == @wt')
                                       .query('site == @site')
                                       .query('mutation == @mutation')
                                       ), f"{mutation_str} not in `escape_dms` once for {antibody}"
+    antibody_order.append(antibody)
             
 selection_df = pd.DataFrame.from_records(
                 records,
                 columns=['antibody', 'site', 'wildtype', 'mutation', 'n_selected'])
-
-antibody_order = selection_df['antibody'].unique().tolist()
 
 display(HTML(selection_df.to_html(index=False)))
 ```
@@ -252,7 +252,55 @@ display(HTML(selection_df.to_html(index=False)))
 </table>
 
 
-Add escape-selection counts to main data frame and then get just antibodies with at least one escape-mutation selected:
+Get data frame with just mutations to label:
+
+
+```python
+records = []
+for antibody, d in selection_results.items():
+    if 'label_mutations' in d:
+        for mutation_str in d['label_mutations']:
+            wt = mutation_str[0]
+            site = int(mutation_str[1: -1])
+            mutation = mutation_str[-1]    
+            records.append((antibody, site, wt, mutation, mutation_str))
+            assert 1 == len(escape_dms.query('antibody == @antibody')
+                                      .query('wildtype == @wt')
+                                      .query('site == @site')
+                                      .query('mutation == @mutation')
+                                      ), f"{mutation_str} not in `escape_dms` once for {antibody}"
+            
+label_df = pd.DataFrame.from_records(
+                records,
+                columns=['antibody', 'site', 'wildtype', 'mutation', 'label'])
+
+display(HTML(label_df.to_html(index=False)))
+```
+
+
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>antibody</th>
+      <th>site</th>
+      <th>wildtype</th>
+      <th>mutation</th>
+      <th>label</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>COV2-2165</td>
+      <td>420</td>
+      <td>D</td>
+      <td>Y</td>
+      <td>D420Y</td>
+    </tr>
+  </tbody>
+</table>
+
+
+Add escape-selection counts and labels to main data frame and then get just antibodies of interest:
 
 
 ```python
@@ -263,11 +311,16 @@ escape_dms_selection = (
            on=['antibody', 'site', 'wildtype', 'mutation'],
            validate='one_to_one',
            )
+    .merge(label_df,
+           how='left',
+           on=['antibody', 'site', 'wildtype', 'mutation'],
+           validate='one_to_one',
+           )
     .assign(n_selected=lambda x: x['n_selected'].fillna(0).astype(int),
             n_selected_total=lambda x: x.groupby('antibody')['n_selected'].transform('sum'),
             any_selected=lambda x: x['n_selected'] > 0,
             )
-    .query('n_selected_total > 0')
+    .query('antibody in @antibody_order')
     .reset_index(drop=True)
     )
 
@@ -288,6 +341,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <th>ACE2 binding</th>
       <th>RBD expression</th>
       <th>n_selected</th>
+      <th>label</th>
       <th>n_selected_total</th>
       <th>any_selected</th>
     </tr>
@@ -304,6 +358,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-0.03</td>
       <td>-0.11</td>
       <td>0</td>
+      <td>NaN</td>
       <td>2</td>
       <td>False</td>
     </tr>
@@ -318,6 +373,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-0.09</td>
       <td>-1.26</td>
       <td>0</td>
+      <td>NaN</td>
       <td>2</td>
       <td>False</td>
     </tr>
@@ -332,6 +388,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>0.03</td>
       <td>-0.44</td>
       <td>0</td>
+      <td>NaN</td>
       <td>2</td>
       <td>False</td>
     </tr>
@@ -346,6 +403,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>0.00</td>
       <td>-0.31</td>
       <td>0</td>
+      <td>NaN</td>
       <td>2</td>
       <td>False</td>
     </tr>
@@ -360,6 +418,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-0.10</td>
       <td>-0.70</td>
       <td>0</td>
+      <td>NaN</td>
       <td>2</td>
       <td>False</td>
     </tr>
@@ -419,11 +478,13 @@ assert not len(df.query('any_selected and not single_nt_accessible')), 'categori
 p = (ggplot(df) +
      aes('mutation_escape', 'ACE2 binding',
          color='point_category', alpha='point_category',
-         size='point_area', shape='point_category') +
+         size='point_area', shape='point_category', label='label') +
      geom_point() +
+     geom_text(size=8, va='bottom', ha='left', alpha=1, nudge_x=0.01, nudge_y=0.01,
+               show_legend=False) +
      facet_wrap('~ antibody', nrow=1, scales='free_x') +
      scale_color_manual(values=[CBPALETTE[0], CBPALETTE[3], CBPALETTE[6]]) +
-     scale_alpha_manual(values=[0.3, 0.4, 0.95]) +
+     scale_alpha_manual(values=[0.35, 0.45, 0.95]) +
      scale_size_area(max_size=2.5) +
      scale_shape_manual(values=['x', 'o', 'D']) +
      theme_classic() +
@@ -435,7 +496,8 @@ p = (ggplot(df) +
                                title='mutation type'),
             color=guide_legend(title='mutation type'),
             ) +
-     theme(figure_size=(1.6 * n_antibodies, 1.6))
+     theme(figure_size=(1.6 * n_antibodies, 1.6),
+           legend_position='top')
     )
      
 _ = p.draw()
@@ -445,15 +507,21 @@ print(f"Saving plot to {plotfile}")
 p.save(plotfile, verbose=False)
 ```
 
+    /fh/fast/bloom_j/computational_notebooks/jbloom/2020/SARS-CoV-2-RBD_MAP/env/lib/python3.7/site-packages/plotnine/layer.py:452: PlotnineWarning: geom_text : Removed 11795 rows containing missing values.
+      self.data = self.geom.handle_na(self.data)
+
+
     Saving plot to results/escape_selections/mutations_scatter.pdf
 
 
+    /fh/fast/bloom_j/computational_notebooks/jbloom/2020/SARS-CoV-2-RBD_MAP/env/lib/python3.7/site-packages/plotnine/layer.py:452: PlotnineWarning: geom_text : Removed 11795 rows containing missing values.
+      self.data = self.geom.handle_na(self.data)
     /fh/fast/bloom_j/computational_notebooks/jbloom/2020/SARS-CoV-2-RBD_MAP/env/lib/python3.7/site-packages/plotnine/guides/guide_legend.py:126: PlotnineWarning: Duplicated override_aes is ignored.
       warn("Duplicated override_aes is ignored.", PlotnineWarning)
 
 
 
-![png](escape_selections_files/escape_selections_15_2.png)
+![png](escape_selections_files/escape_selections_17_3.png)
 
 
 
