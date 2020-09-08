@@ -29,3 +29,5 @@ This directory contains input data used for the analysis:
  - [escape_selection_results.yaml](escape_selection_results.yaml) results of escape-mutant selections by Pavlo in Crowe lab.
 
  - [VSV-SARS-CoV-2-Spike.gb](VSV-SARS-CoV-2-Spike.gb) is the sequence of the Spike in the VSV virus expressing the SARS-CoV-2 Spike used by the Crowe lab (originally from Whelan lab); sequence provided by Seth Zost.
+ 
+ - [dms-view_metadata.md](dms-view_metadata.md) is the Markdown text rendered in the metadata panel of `dms-view`
