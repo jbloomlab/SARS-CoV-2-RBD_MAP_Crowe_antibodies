@@ -16,7 +16,7 @@ This directory contains input data used for the analysis:
 
  - [site_color_schemes.csv](site_color_schemes.csv): Schemes for how to color sites (can be used in escape profiles). Here are details on these schemes.
 
-   - The `subdomain` scheme colors sites orange if they directly contact ACE2 (within 4 angstroms in PDB 6m0j) in the SARS-CoV-2 structure (residues 417, 446, 449, 453, 455, 456, 475, 486, 487, 489, 493, 496, 498, 500, 501, 502, 505), blue if they are in the receptor binding motif (RBM, residue 437 to 508, inclusive), and green if they are in the core RBD domain (all other sites). These definitions match those used in [Starr et al (2020)](https://www.cell.com/cell/fulltext/S0092-8674(20)31003-5).
+   - The `subdomain` scheme colors sites orange if they directly contact ACE2 (within 4 angstroms in PDB 6m0j) in the SARS-CoV-2 structure (residues 417, 446, 449, 453, 455, 456, 475, 486, 487, 489, 493, 496, 498, 500, 501, 502, 505), blue if they are in the receptor binding motif (RBM, residue 437 to 508, inclusive), and green if they are in the core RBD domain (all other sites). These definitions match those used in [Starr et al. (2020)](https://www.cell.com/cell/fulltext/S0092-8674(20)31003-5).
 
  - [./GISAID](GISAID): files of spike sequences from GISAID isolates. Contains aligned spike sequences downloaded from GISAID as of 8/4/2020 and the "contributors" table required to be referred to in publication using these sequences.
 
@@ -26,7 +26,7 @@ This directory contains input data used for the analysis:
 
  - [Antibody binding and competition data](./Zost_binding_data.csv) from [Zost, et al., 2020](https://www.nature.com/articles/s41586-020-2548-6). 
 
- - [escape_selection_results.yaml](escape_selection_results.yaml) results of escape-mutant selections by Pavlo in Crowe lab.
+ - [escape_selection_results.yaml](escape_selection_results.yaml) results of escape-mutant selections by Pavlo Gilchuk in Crowe lab.
 
  - [VSV-SARS-CoV-2-Spike.gb](VSV-SARS-CoV-2-Spike.gb) is the sequence of the Spike in the VSV virus expressing the SARS-CoV-2 Spike used by the Crowe lab (originally from Whelan lab); sequence provided by Seth Zost.
  
