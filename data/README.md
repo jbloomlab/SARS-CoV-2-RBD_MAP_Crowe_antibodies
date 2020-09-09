@@ -26,7 +26,7 @@ This directory contains input data used for the analysis:
 
  - [Antibody binding and competition data](./Zost_binding_data.csv) from [Zost, et al., 2020](https://www.nature.com/articles/s41586-020-2548-6). 
 
- - [escape_selection_results.yaml](escape_selection_results.yaml) results of escape-mutant selections by Pavlo in Crowe lab.
+ - [escape_selection_results.yaml](escape_selection_results.yaml) results of escape-mutant selections by Pavlo Gilchuk in Crowe lab.
 
  - [VSV-SARS-CoV-2-Spike.gb](VSV-SARS-CoV-2-Spike.gb) is the sequence of the Spike in the VSV virus expressing the SARS-CoV-2 Spike used by the Crowe lab (originally from Whelan lab); sequence provided by Seth Zost.
  
