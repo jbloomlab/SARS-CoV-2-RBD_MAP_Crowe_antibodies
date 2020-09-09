@@ -6,7 +6,7 @@ For background, see our paper **here (add link)**.
 We are showing mutations to the SARS-CoV-2 RBD that escape antibody binding as measured using mutational antigenic profiling.
 The drop-down menus can be used to select the escape-mutation maps for each different antibody.
 
-When you click on sites, they will be highlighted on the protein structure of the ACE2-bound RBD ([PDB 6M0J](https://www.rcsb.org/structure/6M0J), from [Lan et al (2020)](https://www.nature.com/articles/s41586-020-2180-5)).
+When you click on sites, they will be highlighted on the protein structure of the ACE2-bound RBD ([PDB 6M0J](https://www.rcsb.org/structure/6M0J), from [Lan et al. (2020)](https://www.nature.com/articles/s41586-020-2180-5)).
 
 At the site level you can visualize one of two quantities:
 
@@ -17,9 +17,9 @@ At the site level you can visualize one of two quantities:
 At the mutation level, the height of each letter is proportional to the extent to which that amino-acid mutation escapes antibody binding.
 You can color the logo plot letters in four ways:
 
- - *escape color ACE2 bind* means color letters according to how that mutation affects ACE2 binding as measured in our prior deep mutational scanning ([Starr et al (2020)](https://doi.org/10.1016/j.cell.2020.08.012), with yellow meaning highly deleterious, and brown meaning neutral or beneficial for ACE2 binding. See Figure 5B in the preprint linked above for color scale.
+ - *escape color ACE2 bind* means color letters according to how that mutation affects ACE2 binding as measured in our prior deep mutational scanning ([Starr et al. (2020)](https://doi.org/10.1016/j.cell.2020.08.012), with yellow meaning highly deleterious, and brown meaning neutral or beneficial for ACE2 binding. See Figure 5B in the preprint linked above for color scale.
  
- - *escape color RBD expr* means color letters according to how that mutation affects RBD expression as measured in [Starr et al (2020)](https://doi.org/10.1016/j.cell.2020.08.012).
+ - *escape color RBD expr* means color letters according to how that mutation affects RBD expression as measured in [Starr et al. (2020)](https://doi.org/10.1016/j.cell.2020.08.012).
 
  - *escape color gray* means color all letters gray.
 
