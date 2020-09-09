@@ -2,7 +2,7 @@
 
 Below are links to interactive visualizations of the effects of single mutations to the SARS-CoV-2 spike receptor-binding domain (RBD) on recognition by ten monoclonal antibodies. These visualizations are built using [dms-view](https://dms-view.github.io/docs/). These data are posted in [this pre-print - broken link](link).
 
-Strong sites of escape are shown for each antibody, and are mapped to the ACE2-bound RBD structure ([PDB 6M0J](https://www.rcsb.org/structure/6M0J). In this structure, ACE2 is in dark gray and the RBD is light gray. The logo plots are colored by how mutations impact ACE2 binding or RBD expression.
+Strong sites of escape are shown for each antibody, and are mapped to the ACE2-bound RBD structure ([PDB 6M0J](https://www.rcsb.org/structure/6M0J)). In this structure, ACE2 is in dark gray and the RBD is light gray. The logo plots are colored by how mutations impact ACE2 binding or RBD expression.
 
 `dms-view` renderings for strong sites of escape for each antibody:
  - <a href="https://dms-view.github.io/?markdown-url=https%3A%2F%2Fraw.githubusercontent.com%2Fjbloomlab%2FSARS-CoV-2-RBD_MAP_Crowe_antibodies%2Fmaster%2Fdata%2Fdms-view_metadata.md&pdb-url=https%3A%2F%2Fraw.githubusercontent.com%2Fjbloomlab%2FSARS-CoV-2-RBD_MAP_Crowe_antibodies%2Fmaster%2Fdata%2Fpdbs%2F6M0J.pdb&data-url=https%3A%2F%2Fraw.githubusercontent.com%2Fjbloomlab%2FSARS-CoV-2-RBD_MAP_Crowe_antibodies%2Fmaster%2Fresults%2Fsupp_data%2FMAP_paper_antibodies_dms-view_data.csv&condition=rCR3022&site_metric=site_total+escape&mutation_metric=mut_escape+color+RBD+expr&selected_sites=361%2C378%2C382%2C383%2C392&protein-data-color=gainsboro&protein-other-color=darkslategray" target="_blank">rCR3022</a> 
