@@ -211,7 +211,7 @@ display(HTML(selection_df.to_html(index=False)))
       <td>378</td>
       <td>K</td>
       <td>E</td>
-      <td>1</td>
+      <td>7</td>
     </tr>
     <tr>
       <td>COV2-2094</td>
@@ -225,21 +225,21 @@ display(HTML(selection_df.to_html(index=False)))
       <td>484</td>
       <td>E</td>
       <td>K</td>
-      <td>1</td>
+      <td>3</td>
     </tr>
     <tr>
       <td>COV2-2050</td>
       <td>484</td>
       <td>E</td>
       <td>K</td>
-      <td>2</td>
+      <td>4</td>
     </tr>
     <tr>
       <td>COV2-2499</td>
       <td>446</td>
       <td>G</td>
       <td>D</td>
-      <td>2</td>
+      <td>3</td>
     </tr>
     <tr>
       <td>COV2-2499</td>
@@ -359,7 +359,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-0.11</td>
       <td>0</td>
       <td>NaN</td>
-      <td>2</td>
+      <td>4</td>
       <td>False</td>
     </tr>
     <tr>
@@ -374,7 +374,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-1.26</td>
       <td>0</td>
       <td>NaN</td>
-      <td>2</td>
+      <td>4</td>
       <td>False</td>
     </tr>
     <tr>
@@ -389,7 +389,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-0.44</td>
       <td>0</td>
       <td>NaN</td>
-      <td>2</td>
+      <td>4</td>
       <td>False</td>
     </tr>
     <tr>
@@ -404,7 +404,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-0.31</td>
       <td>0</td>
       <td>NaN</td>
-      <td>2</td>
+      <td>4</td>
       <td>False</td>
     </tr>
     <tr>
@@ -419,7 +419,7 @@ display(HTML(escape_dms_selection.head().to_html(index=False)))
       <td>-0.70</td>
       <td>0</td>
       <td>NaN</td>
-      <td>2</td>
+      <td>4</td>
       <td>False</td>
     </tr>
   </tbody>
@@ -484,8 +484,8 @@ p = (ggplot(df) +
                show_legend=False) +
      facet_wrap('~ antibody', nrow=1, scales='free_x') +
      scale_color_manual(values=[CBPALETTE[0], CBPALETTE[3], CBPALETTE[6]]) +
-     scale_alpha_manual(values=[0.35, 0.45, 0.95]) +
-     scale_size_area(max_size=2.5) +
+     scale_alpha_manual(values=[0.35, 0.45, 0.9]) +
+     scale_size(range=(1.5, 4)) +
      scale_shape_manual(values=['x', 'o', 'D']) +
      theme_classic() +
      scale_x_continuous(name='mutation escape fraction',
@@ -523,6 +523,16 @@ p.save(plotfile, verbose=False)
 
 ![png](escape_selections_files/escape_selections_17_3.png)
 
+
+
+```python
+?scale_size
+```
+
+
+```python
+?scale_size_manual
+```
 
 
 ```python
