@@ -1,7 +1,7 @@
-# Mutational antigenic profiling of SARS-CoV-2 RBD
-Analysis of mutational antigenic profiling of barcoded codon variants of SARS-CoV-2 RBD.
+# Complete mapping of mutations to the SARS-CoV-2 spike receptor-binding domain that escape antibody recognition
+See the [pre-print describing the work here](https://www.biorxiv.org/content/10.1101/2020.09.10.292078v1).
 
-Study and analysis by Allie Greaney, Tyler Starr, [Jesse Bloom](https://research.fhcrc.org/bloom/en.html), and co-authors.
+Study and analysis by Allie Greaney, Tyler Starr, Pavlo Gilchuk, Seth Zost, ..., [James Crowe](https://www.vumc.org/crowe-lab) and [Jesse Bloom](https://research.fhcrc.org/bloom/en.html), and co-authors.
 
 ## Summary of workflow and results
 For a summary of the workflow and links to key results files, [click here](results/summary/summary.md).
