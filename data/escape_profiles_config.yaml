@@ -1,57 +1,60 @@
 # Specify configuration of escape profile plots.
 # You can specify multiple plots here.
 
-MAP_paper_antibodies: &MAP_paper_antibodies # name of plot
-  conditions:  # antibodies / sera to show and names to use for them
-    CR3022_400: rCR3022
-    COV2-2677_400: COV2-2677
-    COV2-2082_400: COV2-2082
-    COV2-2094_400: COV2-2094
-    COV2-2165_400: COV2-2165
-    COV2-2832_400: COV2-2832
-    COV2-2479_400: COV2-2479
-    COV2-2050_400: COV2-2050
-    COV2-2096_400: COV2-2096
+COV2_2499_single_nt:
+  conditions:
     COV2-2499_400: COV2-2499
-  # plot automatically identified sites?
   plot_auto_identified_sites: true
-  # add these sites if they aren't automatically identified
-  add_sites: []
-  # exclude these sites even if not automatically identified
-  exclude_sites: []
-  # name of site-level color scheme in `site_color_schemes.csv` **or**
-  # color for all sites
-  site_color_scheme: subdomain
-  # do multi-dimensional scaling?
-  mds: true
-  # color points on multi-dimensional scaling by site color scheme?
-  mds_color_by_site: true
-  # make escape profiles colored by DMS bind / expr measurements?
-  color_by_dms: True
-  # make supplemental data files for this antibody set
-  make_supp_data: true
-
-# break MAP_paper_antibodies plot into two using anchors and references
-MAP_paper_antibodies_CR3022_like:
-  <<: *MAP_paper_antibodies
-  conditions:
-    CR3022_400: rCR3022
-    COV2-2677_400: COV2-2677
-    COV2-2082_400: COV2-2082
-    COV2-2094_400: COV2-2094
+  site_color_scheme: gray
+  color_by_dms: true
+  single_nt_only: ./data/VSV-SARS-CoV-2-Spike.gb
   dmslogo_facet_plot_kwargs:
-    height_per_ax: 2
-  make_supp_data: false
-MAP_paper_antibodies_RBM:
-  <<: *MAP_paper_antibodies
+    height_per_ax: 2.1
+
+COV2_2499:
+  conditions:
+    COV2-2499_400: COV2-2499
+  plot_auto_identified_sites: true
+  site_color_scheme: gray
+  color_by_dms: true
+  dmslogo_facet_plot_kwargs:
+    height_per_ax: 2.1
+    
+COV2_2165_single_nt:
+  conditions:
+    COV2-2165_400: COV2-2165
+  plot_auto_identified_sites: true
+  site_color_scheme: gray
+  color_by_dms: true
+  single_nt_only: ./data/VSV-SARS-CoV-2-Spike.gb
+  dmslogo_facet_plot_kwargs:
+    height_per_ax: 2.1
+
+COV2_2165:
+  conditions:
+    COV2-2165_400: COV2-2165
+  plot_auto_identified_sites: true
+  site_color_scheme: gray
+  color_by_dms: true
+  dmslogo_facet_plot_kwargs:
+    height_per_ax: 2.1
+  
+presentation_subset_gray:
   conditions:
     COV2-2165_400: COV2-2165
     COV2-2832_400: COV2-2832
-    COV2-2479_400: COV2-2479
-    COV2-2050_400: COV2-2050
-    COV2-2096_400: COV2-2096
     COV2-2499_400: COV2-2499
+  plot_auto_identified_sites: true
+  site_color_scheme: gray
   dmslogo_facet_plot_kwargs:
-    height_per_ax: 2
-  make_supp_data: false
+    height_per_ax: 1.9
 
+presentation_subset_domain:
+  conditions:
+    COV2-2165_400: COV2-2165
+    COV2-2832_400: COV2-2832
+    COV2-2499_400: COV2-2499
+  plot_auto_identified_sites: true
+  site_color_scheme: subdomain
+  dmslogo_facet_plot_kwargs:
+    height_per_ax: 1.9
