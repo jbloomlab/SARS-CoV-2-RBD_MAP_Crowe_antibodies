@@ -58,3 +58,14 @@ presentation_subset_domain:
   site_color_scheme: subdomain
   dmslogo_facet_plot_kwargs:
     height_per_ax: 1.9
+    
+cocktail:
+  conditions:
+    COV2-2499_400: COV2-2499
+    COV2-2094_400: COV2-2094
+    COV2-2050_400: COV2-2050
+  plot_auto_identified_sites: true
+  site_color_scheme: subdomain
+  dmslogo_facet_plot_kwargs:
+    height_per_ax: 1.9
+    
