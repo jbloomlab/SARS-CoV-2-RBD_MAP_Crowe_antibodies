@@ -1,5 +1,5 @@
 # Complete mapping of mutations to the SARS-CoV-2 spike receptor-binding domain that escape antibody recognition
-See the [pre-print describing the work here](https://www.biorxiv.org/content/10.1101/2020.09.10.292078v1).
+See the [paper describing the work here](https://www.sciencedirect.com/science/article/pii/S1931312820306247).
 
 Study and analysis by Allie Greaney, Tyler Starr, Pavlo Gilchuk, Seth Zost, ..., [James Crowe](https://www.vumc.org/crowe-lab) and [Jesse Bloom](https://research.fhcrc.org/bloom/en.html), and co-authors.
 

@@ -1,6 +1,6 @@
 # Interactive structural visualizations of escape mutation maps
 
-Below are links to interactive visualizations of the effects of single mutations to the SARS-CoV-2 spike receptor-binding domain (RBD) on recognition by ten monoclonal antibodies. These visualizations are built using [dms-view](https://dms-view.github.io/docs/). These data are described in [this pre-print](https://www.biorxiv.org/content/10.1101/2020.09.10.292078v1).
+Below are links to interactive visualizations of the effects of single mutations to the SARS-CoV-2 spike receptor-binding domain (RBD) on recognition by ten monoclonal antibodies. These visualizations are built using [dms-view](https://dms-view.github.io/docs/). These data are described in this [paper](https://www.sciencedirect.com/science/article/pii/S1931312820306247).
 
 Strong sites of escape are shown for each antibody, and are mapped to the ACE2-bound RBD structure ([PDB 6M0J](https://www.rcsb.org/structure/6M0J)). In this structure, ACE2 is in dark gray and the RBD is light gray. The logo plots are colored by how mutations impact ACE2 binding or RBD expression (see the scale bars in Figure 5B of the [pre-print](https://www.biorxiv.org/content/10.1101/2020.09.10.292078v1)).
 
